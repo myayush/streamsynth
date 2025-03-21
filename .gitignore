@@ -1,0 +1,7 @@
+node_modules/
+npm-debug.log
+.streamsynth-spillover/
+test/data/output/
+coverage/
+.DS_Store
+*.log
