@@ -4,7 +4,7 @@
   "description": "A lightweight framework for real-time data stream processing",
   "main": "index.js",
   "bin": {
-    "streamsynth": "./bin/streamsynth.js"
+    "streamsynth": "bin/streamsynth.js"
   },
   "scripts": {
     "test": "jest",
@@ -54,13 +54,12 @@
       "./test/setup.js"
     ]
   },
-
   "repository": {
-  "type": "git",
-  "url": "git+https://github.com/myayush/streamsynth"
-},
-"bugs": {
-  "url": "https://github.com/myayush/streamsynth/issues"
-},
-"homepage": "https://github.com/myayush/streamsynth#readme"
+    "type": "git",
+    "url": "git+https://github.com/myayush/streamsynth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/myayush/streamsynth/issues"
+  },
+  "homepage": "https://github.com/myayush/streamsynth#readme"
 }
