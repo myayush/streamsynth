@@ -49,10 +49,8 @@
     "node": ">=14.0.0"
   },
   "jest": {
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "./test/setup.js"
-    ]
+    "testEnvironment": "node"
+  
   },
   "repository": {
     "type": "git",

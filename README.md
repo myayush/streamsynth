@@ -1,23 +1,19 @@
 # StreamSynth
 
-StreamSynth is a lightweight, high-performance framework for real-time data stream processing with built-in memory safety and native Kafka integration. It enables seamless data transformation using an intuitive API or declarative DSL.
+A lightweight, high-performance framework for real-time data stream processing.
 
-## Features
-- ⚡ **High Performance**: Processes over 10K events/sec with <100ms latency.
-- 🛡 **Memory Safe**: Prevents OOM errors with automatic disk spillover.
-- 🔄 **Versatile Connectors**: Supports file, HTTP, in-memory, console, and Kafka.
-- 🧮 **Powerful Processing**: Filter, transform, and aggregate data streams.
-- 📝 **Flexible Configuration**: Use either the programmatic API or DSL.
-- 🔌 **CLI Support**: Run pipelines directly from DSL files.
+## Overview
+
+StreamSynth enables seamless processing of data streams with minimal latency. It provides memory-safe operations, versatile connectors, and flexible configuration options for modern data pipelines.
 
 ## Installation
+
 ```sh
 npm install streamsynth
-```
+Usage
+JavaScript API
+JavaScript
 
-## Quick Start
-### JavaScript API
-```js
 const { createPipeline } = require('streamsynth');
 
 const pipeline = createPipeline()
@@ -31,71 +27,65 @@ const pipeline = createPipeline()
   .sink('file', { path: './errors.json' });
 
 pipeline.start();
-```
+DSL Configuration
+JavaScript
 
-### DSL Configuration
-```js
 const { parsePipeline } = require('streamsynth');
 
 const pipeline = parsePipeline(`
 source file("./logs/access.log")
 filter(event.statusCode >= 400)
-transform({code: event.statusCode, url: event.url, timestamp: new Date(event.timestamp)})
+transform({code: event.statusCode, url: event.url})
 sink file("./errors.json")
-`);
-
+`); // Added backticks for multi-line string
 pipeline.start();
-```
+Usage Scenario: E-commerce Website Monitoring
+For an e-commerce platform processing thousands of transactions hourly, StreamSynth can be used to:
 
-## Real-World Use Case: Log Monitoring & Alerting
-Easily monitor server logs for errors and send alerts when critical issues arise.
-```js
+Monitor purchase events from website logs in real-time
+Filter for failed transactions (payment declined, timeout, etc.)
+Transform data into actionable insights (failure rate by payment provider)
+Send alerts when failure rates exceed thresholds
+Store processed data for trend analysis
+<!-- end list -->
+
+JavaScript
+
+// E-commerce transaction monitoring
 const pipeline = createPipeline()
-  .source('kafka', { brokers: ['kafka:9092'], topic: 'server-logs' })
-  .filter(event => event.level === 'ERROR')
+  .source('file', { path: './logs/transactions.log' })
+  .filter(event => event.status === 'failed')
   .transform(event => ({
-    service: event.service,
-    message: event.message,
+    orderId: event.id,
+    amount: event.amount,
+    paymentProvider: event.provider,
+    errorCode: event.errorCode,
     timestamp: new Date(event.timestamp)
   }))
-  .sink('http', { url: 'https://alerting-system.com/api/alerts' });
+  .aggregate(
+    { timeWindow: 300000 }, // 5-minute window
+    events => {
+      // Calculate failure rate by provider
+      const providers = {};
+      events.forEach(e => {
+        providers[e.paymentProvider] = (providers[e.paymentProvider] || 0) + 1;
+      });
+
+      return {
+        period: new Date().toISOString(),
+        totalFailures: events.length,
+        byProvider: providers
+      };
+    }
+  )
+  .sink('console', { format: 'json' });
 
 pipeline.start();
-```
-
-## Kafka Integration
-```js
-const pipeline = createPipeline()
-  .source('kafka', { brokers: ['kafka:9092'], topic: 'input-events', groupId: 'my-consumer-group' })
-  .filter(event => event.value > 100)
-  .transform(event => ({
-    originalValue: event.value,
-    doubled: event.value * 2,
-    timestamp: new Date().toISOString()
-  }))
-  .sink('kafka', { brokers: ['kafka:9092'], topic: 'processed-events' });
-
-pipeline.start();
-```
-
-## Command-Line Usage
-```sh
-# Run a pipeline from a DSL file
-npx streamsynth run pipeline.dsl
-
-# Generate a DSL template file
-npx streamsynth create template.dsl
-```
-
-## Memory Safety
-StreamSynth ensures memory efficiency by:
-- 🔄 **Automatic Spillover**: Prevents OOM errors by offloading excess data to disk.
-- 🚀 **Optimized Buffering**: Default buffer size of 1000 events, configurable as needed.
-- 🔁 **Smart Reloading**: Dynamically loads data back into memory when space is available.
-
-## Contributing
-Contributions are welcome! Feel free to submit a Pull Request.
-
-## License
+Key Features
+High-volume processing with minimal latency
+Memory-safe operation with disk spillover for handling large datasets
+Multiple connectors: File, HTTP, Memory, Console
+Streamlined data processing: Filter, Transform, Aggregate
+Command-line interface for running DSL pipelines directly
+License
 MIT
-
